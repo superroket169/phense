@@ -1,10 +1,14 @@
+use crate::GRAVITY;
+use crate::utils::rotate;
 use rlalg::{v, v2f};
 
+#[derive(Clone)]
 pub struct Edge {
     pub begin: v2f,
     pub end: v2f,
 }
 
+#[derive(Clone)]
 pub struct RigidBody {
     pub pos: v2f,
     pub pre_pos: v2f,
@@ -15,6 +19,7 @@ pub struct RigidBody {
     inv_mass: f32,
     inv_inertia: f32,
     pub edges: Vec<Edge>,
+    pub is_static: bool,
 }
 
 impl RigidBody {
@@ -49,7 +54,7 @@ impl RigidBody {
         let h = max_y - min_y;
 
         let inertia = (mass * (w * w + h * h)) / 12.0;
-        1.0 / inertia
+        1.0 / inertia * 100.0
     }
 
     pub fn new(m: f32, p: (f32, f32), r: f32, e: Vec<Edge>) -> Self {
@@ -66,11 +71,22 @@ impl RigidBody {
             inv_mass: im,
             inv_inertia: ii,
             edges: e,
+            is_static: if ii == 0.0 { true } else { false }, // so warningly
         }
     }
 
     pub fn add_force(&mut self, f: v2f) {
         self.accel += f * self.inv_mass;
+    }
+
+    pub fn set_static(&mut self, is: bool) {
+        self.is_static = is;
+    }
+
+    pub fn add_gravity(&mut self) {
+        if self.is_static == false {
+            self.accel += v!(0.0, GRAVITY);
+        }
     }
 
     pub fn add_torque(&mut self, t: f32) {
@@ -103,6 +119,29 @@ impl RigidBody {
 
     pub fn get_inv_mass(&self) -> f32 {
         self.inv_mass
+    }
+
+    pub fn get_inv_inertia(&self) -> f32 {
+        self.inv_inertia
+    }
+
+    pub fn get_world_edges(&self) -> Vec<(v2f, v2f)> {
+        self.edges
+            .iter()
+            .map(|e| {
+                (
+                    rotate(e.begin, self.rot) + self.pos,
+                    rotate(e.end, self.rot) + self.pos,
+                )
+            })
+            .collect()
+    }
+
+    pub fn get_world_points(&self) -> Vec<v2f> {
+        self.edges
+            .iter()
+            .map(|e| rotate(e.begin, self.rot) + self.pos)
+            .collect()
     }
 
     pub fn set_mass(&mut self, m: f32) {

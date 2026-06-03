@@ -1,0 +1,7 @@
+[package]
+name = "phense"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rlalg = { git = "https://github.com/tikoko23/rlalg" }
