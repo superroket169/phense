@@ -1,14 +1,15 @@
 use crate::GRAVITY;
 use crate::utils::rotate;
 use rlalg::{v, v2f};
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct Edge {
     pub begin: v2f,
     pub end: v2f,
 }
 
-#[derive(Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct RigidBody {
     pub pos: v2f,
     pub pre_pos: v2f,

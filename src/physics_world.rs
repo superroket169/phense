@@ -3,6 +3,7 @@ use rlalg::Vector;
 use rlalg::dot;
 use rlalg::{v, v2f};
 
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct PhysicsWorld {
     pub bodies: Vec<RigidBody>,
     pub boddie_corrections: Vec<v2f>,
